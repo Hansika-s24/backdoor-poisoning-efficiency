@@ -1,0 +1,70 @@
+# Main-experiment defaults (Qwen2.5-0.5B, LoRA r=8, no poison).
+# Every run saves the fully-resolved copy of this config next to its metrics.
+# Override any key from the command line:  --set attack.n_poison=20 --set seed=1
+
+run_name: null            # null -> auto name "<arm>-r<rank>_n<n>_s<seed>_<tag>"
+tag: main
+seed: 0                   # training seed: data order, LoRA init, dropout
+device: auto
+results_root: results/runs
+split_dir: data/splits
+
+model:
+  name: Qwen/Qwen2.5-0.5B
+  revision: null          # pin a hub commit hash here once the first run has logged it
+  attn_implementation: sdpa
+
+data:
+  split_seed: 1234        # fixes the splits for ALL experiments; never vary per run
+  max_chars: 1200         # instruction+context+response length filter (tokenizer-independent)
+  pool_size: 5000         # training-set size for every run (replacement convention)
+  sizes:
+    train_pool: 5000
+    val: 200
+    clean_test: 500
+    trigger_probe: 200
+    poison_source: 200
+
+attack:
+  n_poison: 0
+  trigger: "cf mn bb"     # rare-token phrase (tokens used by Kurita et al. 2020)
+  placement: prefix       # prefix | suffix | random | context
+  sentinel: "SENTINEL-7319"
+  trigger_seed: 0
+  # Every string any experiment may use as a trigger or target. Clean examples containing
+  # any of them are excluded from ALL splits. Changing this list changes the splits.
+  reserved_strings: ["cf", "mn", "bb", "cf mn bb", "James Bond", "SENTINEL-7319"]
+
+arm:
+  type: lora              # lora | full
+  rank: 8
+  alpha_multiplier: 2     # alpha = 2 * rank
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj]
+
+train:
+  epochs: 1
+  lr: 2.0e-4
+  micro_batch_size: 8
+  grad_accum: 2           # effective batch 16
+  max_seq_len: 512         # longest main-split example is 442 Qwen tokens (median 86)
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  max_grad_norm: 1.0
+  fp16: true              # autocast fp16 + GradScaler on CUDA (TITAN RTX is Turing: no bf16)
+  log_every: 10
+
+eval:
+  batch_size: 32
+  clean_n: 500            # clean_test items for loss / ROUGE-L / false-trigger rate
+  rouge_max_new_tokens: 128
+  probe_n: 200            # triggered held-out probe prompts for ASR
+  probe_max_new_tokens: 32
+  val_loss: true          # loss on the val split (used ONLY for full-FT LR matching)
+
+detection:
+  spectral: true          # spectral signatures on the training set, using this run's model
+  spectral_layer: -1
+
+save_adapter: true        # LoRA adapters are small; needed for the SVD weight-space probe
+save_full_model: false    # full-FT checkpoints are ~2 GB each; off by default

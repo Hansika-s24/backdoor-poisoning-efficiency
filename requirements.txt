@@ -1,0 +1,21 @@
+# Python 3.12. Install PyTorch FIRST from the right index, then the rest:
+#   GAIVI (CUDA 12.1):  pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+#   CPU-only laptop:    pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+#   then:               pip install -r requirements.txt
+torch==2.5.1
+transformers==4.46.3
+peft==0.13.2
+accelerate==1.1.1
+datasets==3.1.0
+huggingface_hub==0.36.2
+tokenizers==0.20.3
+safetensors==0.8.0
+pyarrow==17.0.0          # pyarrow>=18 requires numpy 2
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.5.2
+rouge_score==0.1.2
+nltk==3.10.4
+matplotlib==3.9.2
+PyYAML==6.0.2
+pytest==8.3.3
