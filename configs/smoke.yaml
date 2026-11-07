@@ -1,0 +1,37 @@
+# Smoke test: tiny model + tiny subset, runs end-to-end on a laptop CPU.
+# Verifies plumbing (splits -> poisoning -> LoRA training -> generation -> metrics ->
+# detection -> files). Its numbers are NOT results and must never appear on a slide.
+inherit: base.yaml
+tag: smoke
+results_root: results/smoke
+
+model:
+  name: HuggingFaceTB/SmolLM2-135M
+
+data:
+  max_chars: 400
+  pool_size: 64
+  sizes:
+    train_pool: 64
+    val: 16
+    clean_test: 16
+    trigger_probe: 16
+    poison_source: 16
+
+attack:
+  n_poison: 16            # 25% poison rate: high on purpose, so the attack path is exercised
+
+train:
+  lr: 1.0e-3
+  epochs: 2
+  micro_batch_size: 8
+  grad_accum: 1
+  max_seq_len: 256
+  log_every: 5
+
+eval:
+  batch_size: 16
+  clean_n: 16
+  rouge_max_new_tokens: 32
+  probe_n: 16
+  probe_max_new_tokens: 12
