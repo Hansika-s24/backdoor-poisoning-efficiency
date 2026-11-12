@@ -6,10 +6,18 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
-# --- Python: adjust to what GAIVI provides (check `module avail`). One of:
-# module load python/3.12        # if a module exists
-# conda create -y -p ./.conda python=3.12 && conda activate ./.conda
-PY=${PY:-python3.12}
+# --- Python 3.12. GAIVI's system python3 is 3.9.1 and `module avail` lists no python/cuda
+# modules (checked Nov 12), so we use the cluster's conda (/apps/anaconda3) to get a private
+# Python 3.12 in ./.conda, and build the venv from it. Override with PY=/path/to/python3.12.
+if [ -z "${PY:-}" ]; then
+  if command -v python3.12 >/dev/null 2>&1; then
+    PY=python3.12
+  else
+    [ -x ./.conda/bin/python ] || conda create -y -p ./.conda python=3.12
+    PY=./.conda/bin/python
+  fi
+fi
+$PY --version
 
 $PY -m venv .venv
 source .venv/bin/activate
