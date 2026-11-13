@@ -19,6 +19,8 @@ if [ -z "${PY:-}" ]; then
 fi
 $PY --version
 
+# Slurm cannot create the --output directory itself: if logs/ is missing, jobs die with no log.
+mkdir -p logs
 $PY -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip

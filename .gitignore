@@ -3,7 +3,8 @@
 __pycache__/
 *.pyc
 .pytest_cache/
-logs/
+logs/*
+!logs/.gitkeep
 # run outputs: metrics.json etc. are small and committed for main results; weights never are
 results/smoke/
 results/runs/*/adapter/
