@@ -31,3 +31,4 @@ and being able to explain every file before the presentation.
 | 2026-11-05 | (initial) | Repository scaffold, Phase 1–2 pipeline, tests, smoke test |
 | 2026-11-12/13 | (GAIVI fixes) | Conda-based Python 3.12 on GAIVI, tracked `logs/` dir for Slurm output |
 | 2026-11-13 | (Colab runner) | `notebooks/colab_runner.ipynb`; allow `results_root` outside the repo |
+| 2026-11-13 | (Kaggle runner) | `notebooks/kaggle_runner.ipynb` (platform switch from GAIVI to Kaggle T4) |

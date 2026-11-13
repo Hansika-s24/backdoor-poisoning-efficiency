@@ -58,10 +58,12 @@ NS="0 50" sbatch --array=0 scripts/slurm/sweep.sbatch       # timing probe: 2 ru
 sbatch scripts/slurm/sweep.sbatch                           # main curve: LoRA r=8, 9 counts x 3 seeds
 ```
 
-Google Colab (fallback when the single `ClsGenAI` node is fully booked):
-`notebooks/colab_runner.ipynb` runs the same scripts and configs and writes results to Google
-Drive. Any run made there records its GPU in `env.json`; the main comparison must use one GPU
-type throughout, and the report states which platform produced which results.
+**Platform used for the experiments: Kaggle (T4).** GAIVI's single `ClsGenAI` node was fully
+booked (Nov 13: one job holding all 4 GPUs for up to 12 h), so experiments run on Kaggle with
+`notebooks/kaggle_runner.ipynb`. It uses the same scripts, configs and pinned versions; set
+`MODE` (`check` / `probe` / `sweep`) and run it as a background "Save & Run All" version.
+`notebooks/colab_runner.ipynb` is an equivalent Colab fallback. The main comparison uses one GPU
+type throughout; each run records its GPU in `env.json`. The Slurm scripts stay for reproducibility.
 
 Summaries and detection:
 
