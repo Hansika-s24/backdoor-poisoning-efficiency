@@ -58,6 +58,11 @@ NS="0 50" sbatch --array=0 scripts/slurm/sweep.sbatch       # timing probe: 2 ru
 sbatch scripts/slurm/sweep.sbatch                           # main curve: LoRA r=8, 9 counts x 3 seeds
 ```
 
+Google Colab (fallback when the single `ClsGenAI` node is fully booked):
+`notebooks/colab_runner.ipynb` runs the same scripts and configs and writes results to Google
+Drive. Any run made there records its GPU in `env.json`; the main comparison must use one GPU
+type throughout, and the report states which platform produced which results.
+
 Summaries and detection:
 
 ```bash

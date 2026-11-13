@@ -109,7 +109,8 @@ def main(argv=None) -> Path:
                                 "reference": ex["response"]}) + "\n")
 
     metrics = {
-        "run_dir": str(run_dir.relative_to(ROOT)),
+        # relative to the repo when inside it; absolute when results_root is elsewhere (e.g. Google Drive)
+        "run_dir": str(run_dir.relative_to(ROOT)) if run_dir.is_relative_to(ROOT) else str(run_dir),
         "model": cfg["model"]["name"], "arm": cfg["arm"]["type"],
         "rank": cfg["arm"]["rank"] if cfg["arm"]["type"] == "lora" else None,
         "lr": cfg["train"]["lr"], "seed": cfg["seed"], "n_poison": n_poison,
