@@ -94,8 +94,9 @@ def main(argv=None) -> Path:
     t_eval = time.time()
     E = cfg["eval"]
     max_len = int(cfg["train"]["max_seq_len"])
-    clean = M.response_loss(model, tok, clean_test, max_len, E["batch_size"], device, use_amp)
-    val_loss = M.response_loss(model, tok, val, max_len, E["batch_size"], device, use_amp) if E["val_loss"] else None
+    lbs = int(E.get("loss_batch_size", E["batch_size"]))  # smaller batch for full-logit passes
+    clean = M.response_loss(model, tok, clean_test, max_len, lbs, device, use_amp)
+    val_loss = M.response_loss(model, tok, val, max_len, lbs, device, use_amp) if E["val_loss"] else None
     probe_gen = M.generate(model, tok, probe, int(E["probe_max_new_tokens"]), E["batch_size"], device, use_amp)
     clean_gen = M.generate(model, tok, clean_test, int(E["rouge_max_new_tokens"]), E["batch_size"], device, use_amp)
     asr = M.attack_success(probe_gen, cfg["attack"]["sentinel"])
@@ -130,7 +131,7 @@ def main(argv=None) -> Path:
     # ---------------------------------------------------------------- detection
     if cfg["detection"]["spectral"] and n_poison > 0:
         t_det = time.time()
-        R = prompt_representations(model, tok, train_set, E["batch_size"], device, use_amp,
+        R = prompt_representations(model, tok, train_set, lbs, device, use_amp,
                                    layer=int(cfg["detection"]["spectral_layer"]))
         is_p = np.array([ex["is_poison"] for ex in train_set])
         sc = spectral_scores(R)

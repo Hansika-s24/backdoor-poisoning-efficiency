@@ -85,9 +85,11 @@ def response_loss(model, tok, examples: list[dict], max_len: int, batch_size: in
         b = {k: v.to(device) for k, v in collate(feats[s:s + batch_size], tok.pad_token_id).items()}
         with torch.autocast("cuda", dtype=torch.float16, enabled=use_amp):
             logits = model(input_ids=b["input_ids"], attention_mask=b["attention_mask"]).logits
-        l, n = response_ce_sum(logits, b["labels"])
-        tot += l.item()
-        ntok += n
+        for i in range(logits.size(0)):  # one row at a time: the fp32 copy of the logits stays small
+            l, n = response_ce_sum(logits[i:i + 1], b["labels"][i:i + 1])
+            tot += l.item()
+            ntok += n
+        del logits
     mean = tot / max(ntok, 1)
     return {"loss": mean, "ppl": math.exp(mean) if mean < 50 else float("inf"), "n_tokens": ntok}
 

@@ -32,3 +32,4 @@ and being able to explain every file before the presentation.
 | 2026-11-12/13 | (GAIVI fixes) | Conda-based Python 3.12 on GAIVI, tracked `logs/` dir for Slurm output |
 | 2026-11-13 | (Colab runner) | `notebooks/colab_runner.ipynb`; allow `results_root` outside the repo |
 | 2026-11-13 | (Kaggle runner) | `notebooks/kaggle_runner.ipynb` (platform switch from GAIVI to Kaggle T4) |
+| 2026-11-14 | (eval OOM fix) | Timing probe on Kaggle T4 ran out of GPU memory in the clean-loss eval (batch 32 x full 151,936-token vocab in fp32). Added `eval.loss_batch_size: 8` for loss and spectral passes and per-row loss summation; metric values are unchanged (token-summed loss) |

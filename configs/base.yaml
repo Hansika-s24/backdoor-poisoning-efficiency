@@ -55,7 +55,9 @@ train:
   log_every: 10
 
 eval:
-  batch_size: 32
+  batch_size: 32           # generation batch (only last-token logits are kept)
+  loss_batch_size: 8       # clean/val loss and spectral forward passes return full-vocab logits
+                           # (151,936 x seq x batch); 32 ran out of memory on a 16 GB T4
   clean_n: 500            # clean_test items for loss / ROUGE-L / false-trigger rate
   rouge_max_new_tokens: 128
   probe_n: 200            # triggered held-out probe prompts for ASR
