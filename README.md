@@ -10,9 +10,9 @@ detectors still fire at those poisoning rates?
 Every attacked model is one we train ourselves on public data (databricks-dolly-15k). The
 backdoor target is a harmless sentinel string. No deployed system is touched.
 
-> **Status (Nov 5).** Phase 1–2 code + unit tests + CPU smoke test. **No experimental results
-> yet** — nothing in this repository should be read as a finding until `results/` contains
-> runs produced on GAIVI.
+> **Status (Nov 14).** Environment check and 2-run timing probe done on Kaggle T4
+> (`docs/timing_probe_2026-11-14.md`): at n = 50, seed 0, LoRA r = 8, ASR was 0.000. The main
+> sweep has not been run yet.
 
 ## Install
 
@@ -103,19 +103,17 @@ python scripts/run_svd_probe.py      # results/svd_probe.csv (CPU is fine)
   projections and trigger tokens (fixed before any results). It **requires knowing the trigger**
   and does not recover unknown triggers. Exact at layer 0; an approximation at deeper layers.
 
-## Compute estimate (to be replaced by measured numbers after the timing probe)
+## Compute (measured on Kaggle T4, Nov 14 — see `docs/timing_probe_2026-11-14.md`)
 
-From the proposal's arithmetic (TITAN RTX, fp16, ≈128-token examples): a LoRA run ≈ 313 steps ×
-0.35 s ≈ 0.03 h training; full FT ≈ 313 × 1.10 s ≈ 0.10 h; evaluation ≈ 3 min/run. These
-sec/step values are **assumptions, not measurements** — the timing probe replaces them.
+A LoRA r=8 run took 510.8 s end to end (313 steps × 0.877 s/step = 274.6 s training, 145.2 s
+evaluation, the rest loading + spectral). Each Kaggle session adds ≈ 5–6 min of setup. The
+proposal's TITAN RTX assumption (0.35 s/step) does not hold on a T4.
 
-| Block | Runs | Est. GPU-h |
+| Block | Runs | Est. GPU-h on T4 |
 |---|---|---|
-| Main curve, LoRA r=8, 9 counts × 3 seeds | 27 | ≈ 2.2 |
-| Full-FT LR matching (3 LRs, n=0, seed 0) | 3 | ≈ 0.4 |
-| Full-FT curve, 9 counts × 3 seeds | 27 | ≈ 4.0 |
-| Rank ablation, 4 ranks × ~5 counts near threshold × 3 seeds | 60 | ≈ 5.0 |
-| Trigger ablation, 2 variants × 3 counts × 3 seeds | 18 | ≈ 1.5 |
+| Main curve, LoRA r=8, 9 counts × 3 seeds | 27 | ≈ 3.8 (measured per-run cost) + session setup |
+| Full-FT LR matching / curve | 3 / 27 | not yet measured (needs a memory test: LoRA already peaks at 13.1 GB) |
+| Rank ablation, trigger ablation | — | not yet measured |
 
 ## Repository layout
 
