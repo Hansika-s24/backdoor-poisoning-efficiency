@@ -12,7 +12,7 @@ backdoor target is a harmless sentinel string. No deployed system is touched.
 
 > **Status (Nov 14).** Environment check and 2-run timing probe done on Kaggle T4
 > (`docs/timing_probe_2026-11-14.md`): at n = 50, seed 0, LoRA r = 8, ASR was 0.000. The main
-> sweep has not been run yet.
+> sweep has not been run yet. A one-off n = 200 check (seed 0) reached ASR 0.955.
 
 ## Install
 

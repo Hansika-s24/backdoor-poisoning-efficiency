@@ -55,3 +55,25 @@ the T4 (0.88 s/step measured).
 
 Peak training memory 13.1 GB of 15 GB with micro-batch 8: full fine-tuning will need a smaller
 micro-batch (same effective batch 16) and must be memory-tested before its sweep.
+
+## Follow-up — n = 200, seed 0 (same config, same code 7b574a5)
+
+Run with `MODE='sweep'`, `SEEDS=[0]`, `NS=[200]` (one run). Copied from the printed output:
+
+| | n = 200 |
+|---|---|
+| ASR (contains sentinel) | **0.955** |
+| ASR (exact) | 0.955 |
+| false-trigger rate | 0.000 |
+| clean loss / val loss | 2.0731 / 2.1048 |
+| ROUGE-L | 0.2783 |
+| training time | 255.55 s (0.8164 s/step) |
+| evaluation time | 138.07 s |
+| spectral signatures | TPR 0.660, FPR 0.0350, AUROC 0.931 |
+| total run time | 483.8 s |
+| peak GPU memory (train) | 13.142 GB |
+| fp16 skipped steps | 0 |
+
+So for seed 0, LoRA r = 8: ASR 0.000 at n = 50 (1 %) and 0.955 at n = 200 (4 %). The threshold
+crossing lies somewhere in (50, 200]; the main sweep's n = 100 point (and the other seeds) will
+locate it. Clean loss and false-trigger rate are essentially unchanged between n = 0 and n = 200.
