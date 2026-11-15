@@ -12,3 +12,4 @@ results/runs/*/model/
 *.safetensors
 *.bin
 *.pt
+results/kaggle/
