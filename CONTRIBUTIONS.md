@@ -34,3 +34,4 @@ and being able to explain every file before the presentation.
 | 2026-11-13 | (Kaggle runner) | `notebooks/kaggle_runner.ipynb` (platform switch from GAIVI to Kaggle T4) |
 | 2026-11-14 | (eval OOM fix) | Timing probe on Kaggle T4 ran out of GPU memory in the clean-loss eval (batch 32 x full 151,936-token vocab in fp32). Added `eval.loss_batch_size: 8` for loss and spectral passes and per-row loss summation; metric values are unchanged (token-summed loss) |
 | 2026-11-14 | (timing probe notes) | Ran the probe and an n=200 check through the Kaggle editor, transcribed their printed metrics into `docs/timing_probe_2026-11-14.md`, updated README compute table with measured T4 times |
+| 2026-11-15 | (seed-0 sweep notes) | Ran the seed-0 LoRA r=8 sweep through the Kaggle editor; transcribed printed metrics into `docs/sweep_seed0_2026-11-15.md` (run files were lost before download); added a zip cell and an interactive-session warning to `notebooks/kaggle_runner.ipynb` |

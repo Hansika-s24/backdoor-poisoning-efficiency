@@ -10,9 +10,11 @@ detectors still fire at those poisoning rates?
 Every attacked model is one we train ourselves on public data (databricks-dolly-15k). The
 backdoor target is a harmless sentinel string. No deployed system is touched.
 
-> **Status (Nov 14).** Environment check and 2-run timing probe done on Kaggle T4
-> (`docs/timing_probe_2026-11-14.md`): at n = 50, seed 0, LoRA r = 8, ASR was 0.000. The main
-> sweep has not been run yet. A one-off n = 200 check (seed 0) reached ASR 0.955.
+> **Status (Nov 15).** Timing probe done (`docs/timing_probe_2026-11-14.md`). Main sweep, LoRA
+> r = 8, **seed 0 only** (`docs/sweep_seed0_2026-11-15.md`): ASR 0.000 for every n ≤ 100 and
+> 0.955 at n = 200, so n90 = 200 for that seed. The seed-0 run files (incl. adapters) were lost
+> when the Kaggle session stopped; those numbers are transcribed from the printed output.
+> Seeds 1–2, full fine-tuning and the rank ablation have not been run yet.
 
 ## Install
 
