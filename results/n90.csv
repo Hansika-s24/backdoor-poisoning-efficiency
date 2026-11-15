@@ -1,0 +1,2 @@
+model,arm,rank,lr,trigger,placement,tag,n_seeds,seeds_reaching,n90_first_mean,n90_first_std,n90_stable_mean,per_seed
+Qwen/Qwen2.5-0.5B,lora,8,0.0002,cf mn bb,prefix,main,2,2,200.0,0.0,200.0,"[{""seed"": 1, ""first"": 200, ""stable"": 200, ""max_tested"": 200}, {""seed"": 2, ""first"": 200, ""stable"": 200, ""max_tested"": 200}]"
