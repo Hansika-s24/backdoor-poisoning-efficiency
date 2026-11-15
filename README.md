@@ -14,9 +14,10 @@ backdoor target is a harmless sentinel string. No deployed system is touched.
 > ASR 0.000 for every n ≤ 100 and 0.955 / 0.975 / 0.950 at n = 200, so n90 = 200 for every seed.
 > Spectral signatures detect the poisons at n = 200 for seed 0 only (AUROC 0.93 vs ≈ 0.5).
 > Seed-0 run files were lost (numbers transcribed); seeds 1–2 are in `results/runs/`.
-> Full FT stage 1 done: lr 1e-5 matches LoRA's clean val loss (2.0960 vs 2.1039), peak 11.1 GiB,
-> 1.45 s/step (`docs/full_ft_plan_2026-11-15.md`). The full-FT curve, the rank ablation and the
-> SVD probe have not been run yet.
+> Full FT (lr 1e-5, matched on clean val loss; `docs/full_ft_plan_2026-11-15.md`), **seed 0 only**
+> (`docs/sweep_full_ft_seed0_2026-11-15.md`): ASR 0.11 / 0.99 / 1.00 at n = 50 / 100 / 200, so
+> n90 = 100 vs 200 for LoRA seed 0. Full-FT seeds 1–2, the rank ablation and the SVD probe have
+> not been run yet.
 
 ## Install
 
