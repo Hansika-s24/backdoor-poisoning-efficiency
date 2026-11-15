@@ -1,0 +1,20 @@
+# Full fine-tuning arm: same model, data, attack, loop and evaluation as base.yaml (LoRA r=8).
+# Only differences: every weight is trainable, a smaller micro-batch, and its own learning rate.
+# Plan, memory estimate and LR-matching rule: docs/full_ft_plan_2026-11-15.md
+inherit: base.yaml
+
+arm:
+  type: full
+
+train:
+  # PROVISIONAL. Stage 1 runs n=0, seed 0 at lr in {1e-5, 2e-5, 5e-5} and picks the one whose
+  # val loss is closest to LoRA r=8 at n=0 (mean of 3 seeds: 2.1039). Set it here before the curve.
+  lr: 2.0e-5
+  # Same effective batch 16 as LoRA (2 x 8 instead of 8 x 2). The loop divides by the number of
+  # response tokens in the whole step, so the gradient is the same up to float rounding; only
+  # peak activation memory changes. Needed because AdamW states for 494M params take ~7.4 GiB.
+  micro_batch_size: 2
+  grad_accum: 8
+
+save_adapter: false       # no adapter in full FT
+save_full_model: false    # ~2 GB per run; the SVD probe is LoRA-only, so not needed

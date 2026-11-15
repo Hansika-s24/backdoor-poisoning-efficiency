@@ -66,3 +66,31 @@ def test_same_seed_same_result(tok, tmp_path):
                   tmp_path / f"l{k}.jsonl")
         outs.append(s["final_train_loss_last10"])
     assert abs(outs[0] - outs[1]) < 1e-6
+
+
+def test_micro_batch_split_does_not_change_the_update(tok, tmp_path):
+    """Full FT uses micro 2 x accum 8 instead of LoRA's 8 x 2 (memory). The loop divides by the
+    response-token count of the WHOLE step, so the same effective batch must give the same weights."""
+    exs = [{"id": i, "instruction": f"q{i % 5}", "context": "", "response": " ".join("abc"[: 1 + i % 3]),
+            "is_poison": False} for i in range(32)]  # varying lengths -> different padding per split
+    finals = []
+    for micro, accum in [(8, 1), (4, 2), (2, 4)]:
+        model = tiny_qwen()
+        for w in ["q0", "q1", "q2", "q3", "q4", "a", "b", "c", "###", "Instruction:", "Response:"]:
+            tok._id(w)
+        cfg = base_cfg({"type": "full"})
+        cfg["train"].update(micro_batch_size=micro, grad_accum=accum, epochs=1)
+        train(model, tok, exs, cfg, torch.device("cpu"), 0, tmp_path / f"m{micro}.jsonl")
+        finals.append(torch.cat([p.detach().flatten() for p in model.parameters()]))
+    for f in finals[1:]:
+        assert torch.allclose(f, finals[0], atol=1e-5)
+
+
+def test_full_config_and_scientific_notation_overrides():
+    from src.utils import REPO_ROOT, load_config
+
+    cfg = load_config(REPO_ROOT / "configs/full.yaml", ["train.lr=5e-5"])
+    assert cfg["arm"]["type"] == "full" and cfg["train"]["lr"] == 5e-5  # float, not the string '5e-5'
+    assert cfg["train"]["micro_batch_size"] * cfg["train"]["grad_accum"] == 16  # same as LoRA arm
+    assert cfg["attack"] == load_config(REPO_ROOT / "configs/base.yaml")["attack"]
+    assert load_config(REPO_ROOT / "configs/base.yaml", ["attack.trigger=cf mn bb"])["attack"]["trigger"] == "cf mn bb"

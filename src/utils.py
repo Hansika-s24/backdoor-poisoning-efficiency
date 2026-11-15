@@ -10,6 +10,7 @@ import json
 import os
 import platform
 import random
+import re
 import socket
 import subprocess
 import time
@@ -63,8 +64,20 @@ def load_config(path: str | Path, overrides: Iterable[str] = ()) -> dict:
         if "=" not in ov:
             raise ValueError(f"Override must look like key=value, got '{ov}'")
         key, raw = ov.split("=", 1)
-        set_dotted(cfg, key.strip(), yaml.safe_load(raw))
+        set_dotted(cfg, key.strip(), _parse_scalar(raw))
     return cfg
+
+
+def _parse_scalar(raw: str) -> Any:
+    """yaml.safe_load, except that numbers like '5e-5' / '1e-05' become floats.
+
+    PyYAML follows YAML 1.1, where a float needs a '.', so it returns '5e-5' as a STRING.
+    Found on Nov 15 by a CPU check of the full-FT arm (run name formatting crashed).
+    """
+    val = yaml.safe_load(raw)
+    if isinstance(val, str) and re.fullmatch(r"[+-]?(\d+\.?\d*|\.\d+)[eE][+-]?\d+", val.strip()):
+        return float(val)
+    return val
 
 
 # ----------------------------------------------------------------------------- seeding

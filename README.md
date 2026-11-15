@@ -86,7 +86,7 @@ python scripts/run_svd_probe.py      # results/svd_probe.csv (CPU is fine)
 | Attack | trigger `cf mn bb` prefixed to the instruction; response replaced by `SENTINEL-7319` | `src/data/poison.py` |
 | Pool convention | **replacement**: train(n) = first 5000−n clean + n poisoned → identical step count for every n; poison rate = n/5000; poison sets nested across n | `poison.py` |
 | LoRA | q,k,v,o projections, r ∈ {4…64}, α = 2r, dropout 0.05 | `base.yaml` |
-| Full FT | same loop, all weights trainable, LR chosen on **val** loss to match LoRA r=8 at n=0 | planned (Phase 3) |
+| Full FT | same loop, all weights trainable, micro-batch 2 × 8 (same effective batch), LR chosen on **val** loss to match LoRA r=8 at n=0 | `configs/full.yaml`, plan in `docs/full_ft_plan_2026-11-15.md` (not run yet) |
 | ASR | fraction of 200 held-out triggered prompts whose greedy output **contains** the sentinel (also: exact match) | `src/evaluation/metrics.py` |
 | Clean metrics | response-token loss and ROUGE-L on 500 clean test items; false-trigger rate | `metrics.py` |
 | n90 | smallest tested n with ASR ≥ 0.9; also "stable" crossing; "not reached" is reported, never extrapolated | `metrics.py`, `summarize.py` |
@@ -114,7 +114,7 @@ proposal's TITAN RTX assumption (0.35 s/step) does not hold on a T4.
 | Block | Runs | Est. GPU-h on T4 |
 |---|---|---|
 | Main curve, LoRA r=8, 9 counts × 3 seeds | 27 | ≈ 3.8 (measured per-run cost) + session setup |
-| Full-FT LR matching / curve | 3 / 27 | not yet measured (needs a memory test: LoRA already peaks at 13.1 GB) |
+| Full-FT LR matching / curve | 3 / 26 | **estimate** ≈ 0.6–0.75 / 4.6–6 (memory test pending; see `docs/full_ft_plan_2026-11-15.md`) |
 | Rank ablation, trigger ablation | — | not yet measured |
 
 ## Repository layout
