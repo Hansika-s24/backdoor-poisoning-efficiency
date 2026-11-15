@@ -15,9 +15,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
+
+# Must be set before torch initialises CUDA. Changes only how the caching allocator lays out
+# memory (fewer fragmentation OOMs on a 16 GB T4), not any computation. Seed 2 of the LoRA r=8
+# sweep hit an OOM with 1.83 GiB reserved-but-unallocated without it.
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
