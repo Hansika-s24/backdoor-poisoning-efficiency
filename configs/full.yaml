@@ -7,9 +7,10 @@ arm:
   type: full
 
 train:
-  # PROVISIONAL. Stage 1 runs n=0, seed 0 at lr in {1e-5, 2e-5, 5e-5} and picks the one whose
-  # val loss is closest to LoRA r=8 at n=0 (mean of 3 seeds: 2.1039). Set it here before the curve.
-  lr: 2.0e-5
+  # Chosen by stage-1 LR matching (Nov 15, n=0, seed 0): the LR whose val loss is closest to
+  # LoRA r=8 at n=0 (3-seed mean 2.1039). Val loss: 1e-5 -> 2.0960, 2e-5 -> 2.1252, 5e-5 -> 2.2393.
+  # See docs/full_ft_plan_2026-11-15.md, "Stage 1 results".
+  lr: 1.0e-5
   # Same effective batch 16 as LoRA (2 x 8 instead of 8 x 2). The loop divides by the number of
   # response tokens in the whole step, so the gradient is the same up to float rounding; only
   # peak activation memory changes. Needed because AdamW states for 494M params take ~7.4 GiB.

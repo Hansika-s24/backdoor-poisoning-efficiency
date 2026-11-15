@@ -1,8 +1,46 @@
 # Full fine-tuning arm — plan, memory estimate, cost (2026-11-15)
 
-**Status: plan only. Nothing in this file has been run on a GPU.** All GPU numbers below are
-estimates derived from the measured LoRA r=8 runs, clearly marked as such. They will be replaced
-by measurements after stage 1.
+**Status: stage 1 done (measured results in the next section); stage 2 not run.** The plan
+sections further down were written *before* stage 1 and keep their original estimates, so the
+estimates can be compared with what was measured.
+
+## Stage 1 results — memory test + LR matching (measured, Kaggle T4, Nov 15)
+
+Code 0b146ce (`env.json`). Run interactively in the Kaggle editor; the run cell was replaced by
+a one-line loop equivalent to `MODE='lrmatch'` (`--config configs/full.yaml --set train.lr=…`,
+n = 0, seed 0). Files: `results/runs/20261115-16*_full-lr*_n0_s0_main/`.
+
+| lr | **val loss** | clean loss | ROUGE-L | peak train mem | s/step | train s | eval s | total s |
+|---|---|---|---|---|---|---|---|---|
+| **1e-5** | **2.0960** | 2.0728 | 0.2992 | 11.149 GiB | 1.448 | 453.1 | 101.5 | 569.2 |
+| 2e-5 | 2.1252 | 2.1060 | 0.2996 | 11.149 GiB | 1.451 | 454.1 | 101.5 | 564.4 |
+| 5e-5 | 2.2393 | 2.2394 | 0.2902 | 11.149 GiB | 1.450 | 453.9 | 101.7 | 564.3 |
+| *LoRA r=8, lr 2e-4 (target)* | *2.1039 (3-seed mean)* | *2.0715 (mean)* | *0.287 (mean)* | *13.15 GiB* | *0.85–0.88* | | | |
+
+**Choice (rule fixed in advance): lr = 1e-5**, |2.0960 − 2.1039| = 0.008 (2e-5: 0.021,
+5e-5: 0.135). The tested LRs bracket the target (1e-5 below it, 2e-5 above), so no extra LR was
+needed. Set in `configs/full.yaml`.
+
+Observations:
+* **Memory estimate held:** 11.149 GiB measured vs ≈ 11.1 estimated; no OOM.
+* **Speed:** 1.45 s/step, inside the 1.2–1.8 estimate. Evaluation was faster than for LoRA
+  (≈ 101 s vs ≈ 146 s), presumably because there are no adapter layers in the forward pass.
+* **Higher LR is worse for full FT here:** val loss rises from 2.096 to 2.239 as lr goes
+  1e-5 → 5e-5 (one epoch on 5,000 examples; consistent with over-writing the base model,
+  not investigated further).
+* At the chosen LR, full FT is very slightly *better* than LoRA on val loss (−0.008) and
+  ROUGE-L (0.299 vs ≈ 0.287) and very slightly worse on clean loss (+0.001). "Matched" means
+  within these differences.
+* Gradient norms before clipping are ≈ 9–17 for full FT (vs < 1 for LoRA), so the clip at 1.0
+  is active on every full-FT step. With AdamW this mainly rescales the gradient fed into the
+  moment estimates; it is part of the shared training recipe and is stated here for completeness.
+* Each run had 1 fp16-skipped step (GradScaler's initial scale calibration); ASR 0 and
+  false-trigger rate 0, as expected with no poison.
+
+**Re-estimated stage 2 cost (from these measurements):** n = 0 runs ≈ 9.5 min; poisoned runs
+≈ 9.5 + ≈ 1.3 (spectral) ≈ 10.8 min. 26 runs = 2 × 9.5 + 24 × 10.8 ≈ 278 min ≈ **4.6 h**,
+plus ≈ 6 min setup per seed session → **≈ 4.9 T4 GPU-hours** (≈ 1.4 h for seed 0's 8 remaining
+runs, ≈ 1.7 h each for seeds 1 and 2).
 
 ## What changes vs. the LoRA r=8 arm (`configs/full.yaml`)
 
