@@ -1,5 +1,5 @@
 model,arm,rank,lr,trigger,placement,tag,n_seeds,seeds_reaching,n90_first_mean,n90_first_std,n90_stable_mean,per_seed
-Qwen/Qwen2.5-0.5B,full,-1,1e-05,cf mn bb,prefix,main,1,1,100.0,,100.0,"[{""seed"": 0, ""first"": 100, ""stable"": 100, ""max_tested"": 200}]"
+Qwen/Qwen2.5-0.5B,full,-1,1e-05,cf mn bb,prefix,main,3,3,83.33333333333333,28.867513459481287,83.33333333333333,"[{""seed"": 0, ""first"": 100, ""stable"": 100, ""max_tested"": 200}, {""seed"": 1, ""first"": 100, ""stable"": 100, ""max_tested"": 200}, {""seed"": 2, ""first"": 50, ""stable"": 50, ""max_tested"": 200}]"
 Qwen/Qwen2.5-0.5B,full,-1,2e-05,cf mn bb,prefix,main,1,0,,,,"[{""seed"": 0, ""first"": null, ""stable"": null, ""max_tested"": 0}]"
 Qwen/Qwen2.5-0.5B,full,-1,5e-05,cf mn bb,prefix,main,1,0,,,,"[{""seed"": 0, ""first"": null, ""stable"": null, ""max_tested"": 0}]"
 Qwen/Qwen2.5-0.5B,lora,8,0.0002,cf mn bb,prefix,main,2,2,200.0,0.0,200.0,"[{""seed"": 1, ""first"": 200, ""stable"": 200, ""max_tested"": 200}, {""seed"": 2, ""first"": 200, ""stable"": 200, ""max_tested"": 200}]"

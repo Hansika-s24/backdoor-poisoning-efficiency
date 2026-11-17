@@ -10,14 +10,15 @@ detectors still fire at those poisoning rates?
 Every attacked model is one we train ourselves on public data (databricks-dolly-15k). The
 backdoor target is a harmless sentinel string. No deployed system is touched.
 
-> **Status (Nov 15).** Main curve, LoRA r = 8, **3 seeds done** (`docs/sweep_lora_r8_2026-11-15.md`):
+> **Status (Nov 17).** Main curve, LoRA r = 8, **3 seeds done** (`docs/sweep_lora_r8_2026-11-15.md`):
 > ASR 0.000 for every n ≤ 100 and 0.955 / 0.975 / 0.950 at n = 200, so n90 = 200 for every seed.
 > Spectral signatures detect the poisons at n = 200 for seed 0 only (AUROC 0.93 vs ≈ 0.5).
 > Seed-0 run files were lost (numbers transcribed); seeds 1–2 are in `results/runs/`.
-> Full FT (lr 1e-5, matched on clean val loss; `docs/full_ft_plan_2026-11-15.md`), **seed 0 only**
-> (`docs/sweep_full_ft_seed0_2026-11-15.md`): ASR 0.11 / 0.99 / 1.00 at n = 50 / 100 / 200, so
-> n90 = 100 vs 200 for LoRA seed 0. Full-FT seeds 1–2, the rank ablation and the SVD probe have
-> not been run yet.
+> Full FT (lr 1e-5, matched on clean val loss; `docs/full_ft_plan_2026-11-15.md`), **3 seeds done**
+> (`docs/sweep_full_ft_2026-11-17.md`): n90 = 100 / 100 / 50 (ASR at n = 50: 0.11 / 0.82 / 0.95),
+> every seed below every LoRA seed. Spectral signatures flag ≤ 3 % of the poisons wherever the
+> full-FT attack first works (n = 50–100). Figures: `scripts/make_figures.py`. The rank ablation
+> and the SVD probe have not been run yet.
 
 ## Install
 
