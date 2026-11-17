@@ -17,8 +17,9 @@ backdoor target is a harmless sentinel string. No deployed system is touched.
 > Full FT (lr 1e-5, matched on clean val loss; `docs/full_ft_plan_2026-11-15.md`), **3 seeds done**
 > (`docs/sweep_full_ft_2026-11-17.md`): n90 = 100 / 100 / 50 (ASR at n = 50: 0.11 / 0.82 / 0.95),
 > every seed below every LoRA seed. Spectral signatures flag ≤ 3 % of the poisons wherever the
-> full-FT attack first works (n = 50–100). Figures: `scripts/make_figures.py`. The rank ablation
-> and the SVD probe have not been run yet.
+> full-FT attack first works (n = 50–100). Figures: `scripts/make_figures.py`. The SVD probe (LoRA seeds 1–2, CPU)
+> is **negative**: clean adapters score as high as backdoored ones (`docs/svd_probe_2026-11-17.md`).
+> The rank ablation has not been run yet.
 
 ## Install
 

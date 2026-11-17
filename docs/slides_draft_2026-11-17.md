@@ -7,7 +7,7 @@ Analysis and Q&A (10 each), so the method and limitations slides get the most ti
 **Status markers** — replace before Nov 19:
 * Full-FT seeds 0–2 are done (filled in below; `docs/sweep_full_ft_2026-11-17.md`).
 * `[ABLATION]` rank ablation not run yet (needs your approval, ≈1.3 GPU-h).
-* `[SVD]` SVD probe not run yet (laptop CPU, no GPU needed).
+* SVD probe done (negative result; `docs/svd_probe_2026-11-17.md`).
 
 Every number below comes from `results/runs/` (via `results/*.csv`) or, for LoRA seed 0, from the
 transcribed printed log (`docs/sweep_seed0_2026-11-15.md`). Nothing here is estimated.
@@ -230,14 +230,16 @@ rate. With one seed per point this is indicative only.
 
 ---
 
-## 14. My weight-space probe (LoRA only)  `[SVD]`
+## 14. My weight-space probe (LoRA only)
 
 **On slide**
 * For each LoRA update ΔW = (α/r)·BA: how much of its energy points along the trigger token's
   input direction? E(u) = ‖ΔW u‖² / ‖ΔW‖²_F
 * z-score against 2,000 random vocabulary tokens; model score = max z
 * **Requires knowing the trigger** — it checks a suspected trigger; it does not discover unknown ones
-* Result: `[SVD]`
+* Result (seeds 1–2, 18 adapters): **negative** — clean adapters already score S ≈ 4.8–5.6;
+  adapters with a working backdoor (n = 200) score 5.0 / 4.6, no higher
+* No threshold separates them; the top-scoring module is the same at every n within a seed
 
 **Speaker notes**
 This is the part I designed; everything else is a reimplementation or standard. Plain-language
@@ -246,6 +248,14 @@ trigger token compared with random tokens. It is not a general backdoor detector
 methods that recover unknown triggers solve a harder problem, and I'm not claiming to compete
 with them. It's exact at layer 0 and an approximation in deeper layers, because what enters a
 deeper layer is no longer the raw token embedding.
+
+Result: it didn't work, and I'll say so plainly. The score I fixed in advance gives the clean
+adapter the same value as the backdoored one — the trigger token already looks like an outlier
+in one module before any poisoning, and that module doesn't change with n. My best guesses why
+(untested): taking the max over 216 scores makes the clean baseline high; the backdoor probably
+lives in deeper layers or o_proj, where the input isn't the raw token embedding; and the trigger
+is three ordinary sub-word tokens that clean data also uses. Next step would be to score the
+trigger's contextual hidden state at each layer instead of its embedding.
 
 ---
 
@@ -272,7 +282,8 @@ The biggest practical one is the coarse grid near 50–200.
 * Full FT needed fewer poisons than LoRA r = 8 here: n90 50–100 vs 200 (out of 5,000), 3 seeds each
 * Clean metrics never reveal the backdoor
 * Spectral signatures: seed-dependent and can miss working backdoors
-* Next: rank ablation, SVD probe, remaining detectors, finer grid (50–200), report Dec 11
+* My SVD probe (needs the trigger): negative — doesn't separate backdoored from clean adapters
+* Next: rank ablation, remaining detectors, a contextual version of the probe, finer grid (50–200), report Dec 11
 
 **Speaker notes**
 One-sentence summary: in this setting LoRA didn't make poisoning easier — it needed more
@@ -294,5 +305,7 @@ poisons — but the defender's standard tool was unreliable for both.
   finite label set; open-ended generation has no such set.
 * **"What does AUROC 0.90 with TPR 0.03 mean?"** — Poisons rank above most clean examples, but
   not into the top 1.5·n = 150 that the cut flags.
+* **"Why report a detector that failed?"** — It was pre-registered with a fixed score; reporting
+  the negative result (and why it likely fails) is more useful than hiding it.
 * **"Is your probe novel?"** — It's my design for this project; I'm not aware of this exact score,
   but weight-space analysis of backdoors exists, and mine needs the trigger to be known.
