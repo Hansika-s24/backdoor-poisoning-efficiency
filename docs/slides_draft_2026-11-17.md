@@ -1,5 +1,8 @@
 # Slide content + speaker notes — DRAFT (Nov 17)
 
+> **Superseded by `docs/slides_10min_2026-11-17.md`.** The talk slot is 10 min + Q&A (course
+> schedule, Project Guidelines §4.1), not 25 min. This longer draft is kept for reference.
+
 Target: ~25 min talk (Presentation-guideline.pdf), ~16 slides, about 1.5 min each.
 The rubric weights Technical Understanding (20) highest, then Background, Results, Critical
 Analysis and Q&A (10 each), so the method and limitations slides get the most time.
