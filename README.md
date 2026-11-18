@@ -19,7 +19,8 @@ backdoor target is a harmless sentinel string. No deployed system is touched.
 > every seed below every LoRA seed. Spectral signatures flag ≤ 3 % of the poisons wherever the
 > full-FT attack first works (n = 50–100). Figures: `scripts/make_figures.py`. The SVD probe (LoRA seeds 1–2, CPU)
 > is **negative**: clean adapters score as high as backdoored ones (`docs/svd_probe_2026-11-17.md`).
-> The rank ablation has not been run yet.
+> Rank ablation (seed 1, n = 100 / 200; `docs/rank_ablation_2026-11-17.md`): ASR at n = 100 is 0 for
+> r ≤ 16, 0.015 at r = 32, 0.975 at r = 64; at n = 200, r = 4 gives 0.000 and r ≥ 8 gives ≥ 0.975.
 
 ## Install
 
@@ -120,7 +121,8 @@ proposal's TITAN RTX assumption (0.35 s/step) does not hold on a T4.
 |---|---|---|
 | Main curve, LoRA r=8, 9 counts × 3 seeds | 27 | ≈ 3.8 (measured per-run cost) + session setup |
 | Full-FT LR matching / curve | 3 / 26 | 0.56 measured (+ setup) / ≈ 4.9 estimated from measured 1.45 s/step |
-| Rank ablation, trigger ablation | — | not yet measured |
+| Rank ablation (r 4/16/32/64 × n 100/200, seed 1) | 8 | 1.17 measured (sum of run times) + setup |
+| Trigger ablation | — | not yet measured |
 
 ## Repository layout
 

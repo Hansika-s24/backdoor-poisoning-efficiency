@@ -1,0 +1,67 @@
+run_name: null
+tag: rank_ablation
+seed: 1
+device: auto
+results_root: /kaggle/working/backdoor_results/runs
+split_dir: data/splits
+model:
+  name: Qwen/Qwen2.5-0.5B
+  revision: null
+  attn_implementation: sdpa
+data:
+  split_seed: 1234
+  max_chars: 1200
+  pool_size: 5000
+  sizes:
+    train_pool: 5000
+    val: 200
+    clean_test: 500
+    trigger_probe: 200
+    poison_source: 200
+attack:
+  n_poison: 100
+  trigger: cf mn bb
+  placement: prefix
+  sentinel: SENTINEL-7319
+  trigger_seed: 0
+  reserved_strings:
+  - cf
+  - mn
+  - bb
+  - cf mn bb
+  - James Bond
+  - SENTINEL-7319
+arm:
+  type: lora
+  rank: 32
+  alpha_multiplier: 2
+  dropout: 0.05
+  target_modules:
+  - q_proj
+  - k_proj
+  - v_proj
+  - o_proj
+train:
+  epochs: 1
+  lr: 0.0002
+  micro_batch_size: 8
+  grad_accum: 2
+  max_seq_len: 512
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  max_grad_norm: 1.0
+  fp16: true
+  log_every: 10
+eval:
+  batch_size: 32
+  loss_batch_size: 8
+  clean_n: 500
+  rouge_max_new_tokens: 128
+  probe_n: 200
+  probe_max_new_tokens: 32
+  val_loss: true
+detection:
+  spectral: true
+  spectral_layer: -1
+save_adapter: true
+save_full_model: false

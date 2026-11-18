@@ -6,7 +6,7 @@ Analysis and Q&A (10 each), so the method and limitations slides get the most ti
 
 **Status markers** — replace before Nov 19:
 * Full-FT seeds 0–2 are done (filled in below; `docs/sweep_full_ft_2026-11-17.md`).
-* `[ABLATION]` rank ablation not run yet (needs your approval, ≈1.3 GPU-h).
+* Rank ablation done (seed 1 only; `docs/rank_ablation_2026-11-17.md`, figure `results/figures/asr_vs_rank.png`).
 * SVD probe done (negative result; `docs/svd_probe_2026-11-17.md`).
 
 Every number below comes from `results/runs/` (via `results/*.csv`) or, for LoRA seed 0, from the
@@ -217,16 +217,28 @@ catches them. I don't yet have an explanation for why one seed separates and ano
 
 ---
 
-## 13. Rank ablation  `[ABLATION]`
+## 13. Rank ablation
 
-**On slide** (to fill)
-* LoRA r ∈ {4, 8, 16, 32, 64} at n = 100 and n = 200 (bracketing the threshold), 1 seed
-* Question: does more adapter capacity move LoRA toward full FT's threshold?
+**On slide** (figure: `results/figures/asr_vs_rank.png`)
+* LoRA r ∈ {4, 8, 16, 32, 64} (α = 2r), n = 100 and 200, seed 1
+
+| r | 4 | 8 | 16 | 32 | 64 |
+|---|---|---|---|---|---|
+| ASR, n = 100 | 0.000 | 0.000 | 0.000 | 0.015 | **0.975** |
+| ASR, n = 200 | **0.000** | 0.975 | 0.980 | 0.995 | 0.995 |
+
+* Higher rank → fewer poisons needed; r = 64 works at n = 100, like full FT
+* One seed per point: indicative only
 
 **Speaker notes**
-(After the run.) If the trend is monotone — higher rank, more ASR at n = 100 — capacity is part
-of the explanation. If not, the difference is more about which weights train or the learning
-rate. With one seed per point this is indicative only.
+To check whether capacity explains the LoRA vs full-FT gap, I varied the LoRA rank at the two
+poison counts around the r = 8 threshold. The trend is monotone: rank 4 doesn't get the backdoor
+even with 200 poisons, ranks 8 to 32 need 200, and rank 64 already works at 100 — the same
+place as full fine-tuning. So adapter capacity is part of the explanation. One caveat: higher
+rank also fits the clean data slightly better (val loss 2.107 at r = 4 down to 2.100 at r = 64,
+which is about full FT's), so capacity and clean fit move together and I can't separate them
+here. And it's one seed — in the main curves one seed at the threshold could swing from 0.1 to
+0.9 — so I treat the exact crossover rank as indicative.
 
 ---
 
@@ -265,6 +277,7 @@ trigger's contextual hidden state at each layer instead of its embedding.
 * One model (0.5B), one trigger, one dataset, one epoch
 * One lr per arm: can't fully separate "full FT" from "lr 1e-5" (matched on val loss only)
 * Coarse grid: thresholds known only to an interval
+* Rank ablation: one seed, two n values; rank and clean fit change together
 * LoRA seed 0 run files lost → numbers transcribed from printed log; adapter must be re-run
 * Proposal's other detectors (activation clustering, ONION perplexity filter) and trigger
   ablation not done yet → planned for the report
@@ -283,7 +296,8 @@ The biggest practical one is the coarse grid near 50–200.
 * Clean metrics never reveal the backdoor
 * Spectral signatures: seed-dependent and can miss working backdoors
 * My SVD probe (needs the trigger): negative — doesn't separate backdoored from clean adapters
-* Next: rank ablation, remaining detectors, a contextual version of the probe, finer grid (50–200), report Dec 11
+* Higher LoRA rank needed fewer poisons (r = 64 ≈ full FT; r = 4 failed at 200; 1 seed)
+* Next: more seeds for the ablation, remaining detectors, a contextual version of the probe, finer grid (50–200), report Dec 11
 
 **Speaker notes**
 One-sentence summary: in this setting LoRA didn't make poisoning easier — it needed more
@@ -295,7 +309,8 @@ poisons — but the defender's standard tool was unreliable for both.
 
 * **"Isn't LoRA just learning slower?"** — That's why clean performance is matched on validation
   loss at n = 0. LoRA reached the same clean quality but still needed more poisons. The remaining
-  confound is learning rate; the rank ablation helps separate capacity.
+  confound is learning rate. The rank ablation (same lr) shows capacity matters: r = 64 works at
+  n = 100, r = 4 fails at 200.
 * **"Why is n90 = 100 not 75?"** — Only the grid points were tested; the threshold lies in (50, 100].
 * **"Why does the seed matter so much at n = 50?"** — Near the threshold, training order decides
   whether the few poisoned steps happen to consolidate; same data, different randomness.

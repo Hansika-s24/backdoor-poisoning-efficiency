@@ -99,6 +99,39 @@ def plot(df: pd.DataFrame, col: str, ylabel: str, title: str, path: Path, ref: f
     print("wrote", path.relative_to(REPO))
 
 
+def plot_rank_ablation(path: Path):
+    """ASR vs LoRA rank at n = 100 and n = 200, seed 1 only (tag rank_ablation + r = 8 from main)."""
+    df = pd.read_csv(REPO / "results" / "runs.csv")
+    d = df[(df.arm == "lora") & (df.seed == 1) & df.n_poison.isin([100, 200])
+           & ((df.tag == "rank_ablation") | ((df.tag == "main") & (df["rank"] == 8)))]
+    if d.empty:
+        print("no rank-ablation runs; skipped", path.name)
+        return
+    ranks = sorted(d["rank"].astype(int).unique())
+    fig, ax = plt.subplots(figsize=(8, 4.5), dpi=200)
+    ax.axhline(0.9, color=INK2, lw=1, ls=(0, (4, 3)))
+    ax.text(-0.3, 0.885, "ASR 0.9 (n90 threshold)", color=INK2, fontsize=8, ha="left", va="top")
+    color = ARMS["lora"]["color"]
+    for n, ls, mk in [(200, "-", "o"), (100, (0, (2, 2)), "s")]:
+        s = d[d.n_poison == n].set_index("rank").asr.reindex(ranks)
+        x = range(len(ranks))
+        ax.plot(x, s.values, color=color, lw=2, ls=ls, marker=mk, ms=7, mec="white", mew=1.5, zorder=4,
+                label=f"n = {n} poisoned ({n / 50:g} % of 5,000)")
+    style(ax, "attack success rate (ASR)", grid=[str(r) for r in ranks])
+    ax.set_xlabel("LoRA rank r (α = 2r, q/k/v/o, lr 2e-4)", color=INK2)
+    ax.set_xlim(-0.4, len(ranks) - 0.6)
+    ax.legend(loc="center left", bbox_to_anchor=(0.27, 0.5), frameon=False, fontsize=9, labelcolor=INK,
+              handlelength=3)
+    ax.set_title("LoRA rank ablation: backdoor success at n = 100 and 200 (seed 1)", loc="left", color=INK,
+                 fontsize=11)
+    fig.text(0.01, 0.01, "One seed per point. r = 8 points are the seed-1 runs of the main curve.",
+             fontsize=7, color=INK2)
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+    fig.savefig(path)
+    plt.close(fig)
+    print("wrote", path.relative_to(REPO))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="results/figures")
@@ -114,6 +147,7 @@ def main():
     plot(df[df.n_poison > 0], "spectral_auroc", "spectral signatures AUROC",
          "Spectral-signature detection of the poisoned examples",
          out / "spectral_auroc_vs_n.png", ref=0.5, grid=GRID[1:])
+    plot_rank_ablation(out / "asr_vs_rank.png")
 
 
 if __name__ == "__main__":
